@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forno Minuccio - Pane Artigianale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bakery-brown': '#8B4513',
+                        'bakery-wheat': '#D4A574',
+                        'bakery-cream': '#FAF8F3',
+                        'bakery-dark': '#2C2416',
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Lato', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        #mobile-menu { position: fixed; top: 0; right: -100%; width: 280px; height: 100vh; background: white; z-index: 60; transition: right 0.3s; overflow-y: auto; padding-top: 80px; }
+        #mobile-menu.active { right: 0; }
+        #mobile-menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); opacity: 0; visibility: hidden; z-index: 55; transition: all 0.3s; }
+        #mobile-menu-overlay.active { opacity: 1; visibility: visible; }
+        #cart-icon { position: fixed; bottom: 120px; right: 32px; z-index: 90; cursor: pointer; background: #8B4513; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s; }
+        #cart-icon:hover { background: #2C2416; transform: scale(1.1); }
+        #cart-count { position: absolute; top: -8px; right: -8px; background: #ef4444; color: white; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        #cart-sidebar { position: fixed; right: 0; top: 0; max-width: 400px; width: 90%; height: 100vh; background: white; box-shadow: -2px 0 20px rgba(0,0,0,0.15); z-index: 99; transform: translateX(100%); transition: transform 0.3s; display: flex; flex-direction: column; }
+        #cart-sidebar.open { transform: translateX(0); }
+        #cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 98; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        #cart-overlay.open { opacity: 1; visibility: visible; }
+        #checkout-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s; }
+        #checkout-modal.open { opacity: 1; visibility: visible; }
+        .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background: #25D366; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer; transition: all 0.3s; }
+        .whatsapp-float:hover { background: #20BA5A; transform: scale(1.1); }
+    </style>
+</head>
+<body class="font-body text-bakery-dark bg-bakery-cream antialiased">
+
+<nav class="fixed w-full top-0 z-50 bg-bakery-cream/95 backdrop-blur-sm shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 h-20">
+        <div class="flex justify-between items-center h-full">
+            <a href="#hero" class="flex items-center space-x-2">
+                <div class="text-3xl">🍞</div>
+                <div>
+                    <div class="font-display font-bold text-xl text-bakery-brown">Forno Minuccio</div>
+                    <div class="text-xs text-bakery-dark/60">Pane Artigianale</div>
+                </div>
+            </a>
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#hero" class="text-sm font-medium hover:text-bakery-brown">Home</a>
+                <a href="#about" class="text-sm font-medium hover:text-bakery-brown">Chi Siamo</a>
+                <a href="#products" class="text-sm font-medium hover:text-bakery-brown">Prodotti</a>
+                <a href="#order" class="text-sm font-medium hover:text-bakery-brown">Ordina</a>
+                <a href="#location" class="text-sm font-medium hover:text-bakery-brown">Dove Siamo</a>
+                <a href="#contact" class="bg-bakery-brown text-white px-6 py-2.5 rounded-full hover:bg-bakery-dark">Contattaci</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<div id="mobile-menu-overlay"></div>
+<div id="mobile-menu">
+    <div class="py-4 px-6 space-y-3">
+        <a href="#hero" class="block py-3 text-base font-medium border-b">Home</a>
+        <a href="#about" class="block py-3 text-base font-medium border-b">Chi Siamo</a>
+        <a href="#products" class="block py-3 text-base font-medium border-b">Prodotti</a>
+        <a href="#order" class="block py-3 text-base font-medium border-b">Ordina</a>
+        <a href="#location" class="block py-3 text-base font-medium border-b">Dove Siamo</a>
+    </div>
+</div>
+
+<section id="hero" class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+    <video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover">
+        <source src="https://files.catbox.moe/a6wnjl.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 bg-bakery-dark/50"></div>
+    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center">
+        <h1 class="font-display font-bold text-5xl sm:text-7xl text-white leading-tight opacity-0 animate-fadeInUp">Tradizione che Profuma di Casa</h1>
+        <p class="text-lg sm:text-xl text-white/90 mt-6 opacity-0 animate-fadeInUp delay-100">Da generazioni, il nostro forno porta i sapori autentici sulle vostre tavole.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-8 opacity-0 animate-fadeInUp delay-200">
+            <a href="#products" class="bg-bakery-brown text-white px-8 py-4 rounded-full font-medium hover:bg-bakery-dark">Scopri i Prodotti</a>
+            <a href="#order" class="bg-white text-bakery-brown px-8 py-4 rounded-full font-medium hover:bg-bakery-cream">Ordina Online</a>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="py-20 sm:py-32 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+            <div class="order-2 md:order-1">
+                <img src="https://i.imgur.com/Gm61zXt.png" alt="Forno Minuccio" class="w-full rounded-2xl shadow-2xl">
+            </div>
+            <div class="space-y-6 order-1 md:order-2">
+                <h2 class="font-display font-bold text-4xl sm:text-5xl text-bakery-dark">Tre Generazioni di Passione</h2>
+                <p><strong class="text-bakery-brown">Era il 1963</strong> quando Nonna Rosa accese il piccolo forno a legna. Con le sue mani sapienti iniziò a sfornare il pane più buono del paese.</p>
+                <p>Quello che era nato come un gesto d'amore per la famiglia divenne presto un punto di riferimento per tutto il vicinato.</p>
+                <p>Oggi, <strong class="text-bakery-brown">oltre 60 anni dopo</strong>, siamo alla terza generazione. Il forno si è ingrandito, ma l'anima è rimasta la stessa: <strong>impasto lento, lievitazione naturale, ingredienti selezionati</strong>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="products" class="py-20 sm:py-32 bg-bakery-cream">
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="font-display font-bold text-4xl sm:text-5xl text-bakery-dark text-center mb-16">Dal Forno alla Tua Tavola</h2>
+        <div class="mb-20">
+            <h3 class="font-display font-bold text-3xl text-bakery-brown mb-8">🔥 Forno Classico</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80" alt="Pane" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Pane Casereccio</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Crosta croccante, mollica soffice. Lievitazione naturale.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€3,50/kg</span>
+                            <button onclick="window.addToCart('Pane Casereccio', 3.50, 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80', 'kg')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80" alt="Filone" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Filone</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Perfetto per bruschette. Fragrante fino a 3 giorni.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€2,80/pezzo</span>
+                            <button onclick="window.addToCart('Filone', 2.80, 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=800&q=80', 'pezzo')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=800&q=80" alt="Pagnotta" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Pagnotta Rustica</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Forma tradizionale, ideale per zuppe e formaggi.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€4,20/kg</span>
+                            <button onclick="window.addToCart('Pagnotta Rustica', 4.20, 'https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=800&q=80', 'kg')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-20">
+            <h3 class="font-display font-bold text-3xl text-bakery-brown mb-8">🍰 Dolci Tradizionali</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80" alt="Biscotti" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Biscotti al Burro</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Friabili e profumati. Ottimi con il caffè.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€12,00/kg</span>
+                            <button onclick="window.addToCart('Biscotti al Burro', 12.00, 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80', 'kg')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1464347744102-11db6282f854?w=800&q=80" alt="Crostate" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Crostate Artigianali</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Pasta frolla, marmellata di albicocche.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€18,00/cad</span>
+                            <button onclick="window.addToCart('Crostate Artigianali', 18.00, 'https://images.unsplash.com/photo-1464347744102-11db6282f854?w=800&q=80', 'cad')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80" alt="Torta" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Torta Caprese</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Cioccolato e mandorle. Senza farina.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€22,00/cad</span>
+                            <button onclick="window.addToCart('Torta Caprese', 22.00, 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&q=80', 'cad')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="font-display font-bold text-3xl text-bakery-brown mb-8">🌾 Specialità Regionali</h3>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80" alt="Taralli" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Taralli Dolci e Salati</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Croccanti e aromatici. Perfetti per aperitivi.</p>
+                        <div class="space-y-2">
+                            <button onclick="window.addToCart('Taralli Salati', 8.50, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80', 'kg')" class="w-full bg-bakery-brown text-white px-3 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Salati - €8,50/kg
+                            </button>
+                            <button onclick="window.addToCart('Taralli Dolci', 9.00, 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=800&q=80', 'kg')" class="w-full bg-bakery-brown text-white px-3 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Dolci - €9,00/kg
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80" alt="Semola" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Pane di Semola</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Tradizione pugliese, semola di grano duro.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€3,20/kg</span>
+                            <button onclick="window.addToCart('Pane di Semola', 3.20, 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80', 'kg')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg">
+                    <img src="https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80" alt="Anice" class="w-full aspect-[4/3] object-cover">
+                    <div class="p-6">
+                        <h4 class="font-bold text-xl mb-2">Biscotti all'Anice</h4>
+                        <p class="text-bakery-dark/70 text-sm mb-4">Profumo intenso, rustico. Come li faceva Nonna.</p>
+                        <div class="space-y-3">
+                            <span class="text-bakery-brown font-bold text-lg block">€11,00/kg</span>
+                            <button onclick="window.addToCart('Biscotti all\'Anice', 11.00, 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=800&q=80', 'kg')" class="bg-bakery-brown text-white px-4 py-2.5 rounded-lg hover:bg-bakery-dark transition-all flex items-center gap-2 text-sm font-medium w-full justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Aggiungi al Carrello
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="order" class="py-20 sm:py-32 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="font-display font-bold text-4xl sm:text-5xl text-bakery-dark mb-6">Portiamo la Tradizione a Casa Tua</h2>
+        <p class="text-bakery-dark/70 text-lg mb-12 max-w-2xl mx-auto">Spediamo in tutta Italia i nostri prodotti, confezionati con cura per mantenere freschezza e fragranza.</p>
+        <div class="grid md:grid-cols-3 gap-8 mb-12">
+            <div class="text-center">
+                <div class="w-20 h-20 bg-bakery-wheat/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+                <h3 class="font-bold text-xl mb-2">Scegli</h3>
+                <p class="text-bakery-dark/70 text-sm">Seleziona i prodotti che desideri dal nostro catalogo</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 bg-bakery-wheat/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✉️</div>
+                <h3 class="font-bold text-xl mb-2">Scrivi</h3>
+                <p class="text-bakery-dark/70 text-sm">Contattaci via WhatsApp o email con il tuo ordine</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 bg-bakery-wheat/30 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">📦</div>
+                <h3 class="font-bold text-xl mb-2">Ricevi</h3>
+                <p class="text-bakery-dark/70 text-sm">Il tuo pacco arriva in 24-48 ore, fresco come appena sfornato</p>
+            </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+            <a href="https://wa.me/393913556241?text=Ciao!%20Vorrei%20informazioni%20sui%20vostri%20prodotti." target="_blank" class="bg-green-500 text-white px-8 py-4 rounded-full font-medium hover:bg-green-600 flex items-center justify-center gap-2">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                Ordina su WhatsApp
+            </a>
+            <a href="tel:+393913556241" class="bg-bakery-brown text-white px-8 py-4 rounded-full font-medium hover:bg-bakery-dark flex items-center justify-center gap-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                Chiamaci
+            </a>
+        </div>
+        <div class="mt-12 bg-bakery-cream p-6 rounded-2xl border-l-4 border-bakery-wheat">
+            <p class="text-bakery-dark/80 text-sm leading-relaxed">
+                <strong class="text-bakery-brown">📦 Packaging di qualità:</strong> Ogni prodotto viene confezionato sottovuoto o in atmosfera protettiva per garantire la massima qualità durante il trasporto.
+            </p>
+        </div>
+    </div>
+</section>
+
+<section id="location" class="py-20 sm:py-32 bg-bakery-cream">
+    <div class="max-w-6xl mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-12">
+            <div>
+                <h2 class="font-display font-bold text-4xl text-bakery-dark mb-8">Vieni a Trovarci</h2>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">📍</div>
+                        <div>
+                            <h3 class="font-bold mb-1">Indirizzo</h3>
+                            <p class="text-bakery-dark/70">Via Fontana Dei Salici 73<br>Villanova del Battista (AV), 83030</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">🕐</div>
+                        <div>
+                            <h3 class="font-bold mb-1">Orari</h3>
+                            <p class="text-bakery-dark/70"><strong>Lun-Sab:</strong> 6:00-13:00 | 16:30-19:30<br><strong>Dom:</strong> 7:00-13:00</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="text-3xl">☎️</div>
+                        <div>
+                            <h3 class="font-bold mb-1">Telefono</h3>
+                            <a href="tel:+393913556241" class="text-bakery-brown hover:underline">+39 391 355 6241</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden h-[400px]">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2981.5!2d14.758!3d41.083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sVia%20Fontana%20Dei%20Salici%2073!5e0!3m2!1sit!2sit!4v1234567890" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contact" class="py-20 sm:py-32 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <h2 class="font-display font-bold text-4xl text-bakery-dark mb-6">Seguici sui Social</h2>
+        <p class="text-bakery-dark/70 text-lg mb-12">Ricette, dietro le quinte della preparazione, e i volti di chi lavora ogni giorno per portare qualità sulle vostre tavole.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <a href="https://instagram.com" target="_blank" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-medium hover:shadow-xl">Seguici su Instagram</a>
+            <a href="https://facebook.com" target="_blank" class="bg-blue-600 text-white px-8 py-4 rounded-full font-medium hover:shadow-xl">Seguici su Facebook</a>
+        </div>
+        <div class="inline-block bg-bakery-cream px-8 py-4 rounded-full">
+            <p class="text-bakery-brown font-semibold">📸 Tagga le tue foto con <span class="font-display text-lg">#PaneFattoConAmore</span></p>
+        </div>
+    </div>
+</section>
+
+<footer class="bg-bakery-dark text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
+        <div class="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+                <h3 class="font-display font-bold text-xl text-bakery-wheat mb-4">Forno Minuccio</h3>
+                <p class="text-white/70 text-sm">Tre generazioni di passione per il pane fatto come una volta.</p>
+            </div>
+            <div>
+                <h3 class="font-semibold text-bakery-wheat mb-4">Link Rapidi</h3>
+                <ul class="space-y-2 text-sm text-white/70">
+                    <li><a href="#about" class="hover:text-white">Chi Siamo</a></li>
+                    <li><a href="#products" class="hover:text-white">Prodotti</a></li>
+                    <li><a href="#order" class="hover:text-white">Ordina Online</a></li>
+                    <li><a href="#location" class="hover:text-white">Dove Siamo</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-bakery-wheat mb-4">Informazioni Legali</h3>
+                <ul class="space-y-2 text-sm text-white/70">
+                    <li><a href="#" class="hover:text-white">Condizioni di Vendita</a></li>
+                    <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Cookie Policy</a></li>
+                    <li><a href="#" class="hover:text-white">Termini e Condizioni</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-semibold text-bakery-wheat mb-4">Contatti</h3>
+                <ul class="space-y-2 text-sm text-white/70">
+                    <li>📍 Via Fontana Dei Salici 73</li>
+                    <li>☎️ <a href="tel:+393913556241" class="hover:text-white">+39 391 355 6241</a></li>
+                    <li>✉️ <a href="/cdn-cgi/l/email-protection#7811161e17381e170a16171511160d1b1b111756110c" class="hover:text-white"><span class="__cf_email__" data-cfemail="543d3a323b14323b263a3b393d3a2137373d3b7a3d20">[email&#160;protected]</span></a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-white/10 pt-8 text-center">
+            <p class="text-white/50 text-sm">© 2024 Forno Minuccio. Tutti i diritti riservati.</p>
+        </div>
+    </div>
+</footer>
+
+<div id="cart-icon" onclick="window.toggleCart()">
+    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    </svg>
+    <span id="cart-count">0</span>
+</div>
+
+<div id="cart-sidebar">
+    <div class="bg-bakery-brown text-white p-6 flex justify-between items-center">
+        <h2 class="text-2xl font-display font-bold">Il Tuo Carrello</h2>
+        <button onclick="window.toggleCart()" class="text-2xl hover:text-bakery-wheat">×</button>
+    </div>
+    <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4">
+        <p class="text-center text-bakery-dark/60 py-8">Il carrello è vuoto</p>
+    </div>
+    <div class="border-t-2 border-bakery-cream p-6 space-y-4">
+        <div class="flex justify-between text-lg font-bold text-bakery-dark">
+            <span>Totale:</span>
+            <span id="cart-total">€0,00</span>
+        </div>
+        <button id="checkout-btn" class="w-full bg-bakery-brown text-white py-3 rounded-full font-bold hover:bg-bakery-dark disabled:opacity-50" onclick="window.openCheckout()" disabled>Procedi al Checkout</button>
+        <button class="w-full bg-gray-300 text-gray-700 py-2 rounded-full font-medium hover:bg-gray-400" onclick="window.clearCart()">Svuota Carrello</button>
+    </div>
+</div>
+
+<div id="cart-overlay" onclick="window.toggleCart()"></div>
+
+<div id="checkout-modal">
+    <div class="bg-black/50 absolute inset-0" onclick="window.closeCheckout()"></div>
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+        <button onclick="window.closeCheckout()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        <h2 class="text-2xl font-display font-bold text-bakery-dark mb-2">Completa il Tuo Ordine</h2>
+        <p class="text-bakery-dark/60 text-sm mb-6">Inserisci i tuoi dati per ricevere il tuo ordine via WhatsApp</p>
+        <form id="checkout-form" class="space-y-4" onsubmit="window.submitCheckout(event)">
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Nome Completo *</label>
+                <input type="text" id="customer-name" placeholder="Mario Rossi" class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Telefono *</label>
+                <input type="tel" id="customer-phone" placeholder="+39 333 123 4567" class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Email (opzionale)</label>
+                <input type="email" id="customer-email" placeholder="mario@example.com" class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Indirizzo di Consegna *</label>
+                <input type="text" id="customer-address" placeholder="Via Roma 123, Villanova del Battista" class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Metodo di Pagamento *</label>
+                <select id="payment-method" class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors" required>
+                    <option value="">Seleziona metodo...</option>
+                    <option value="Contanti alla Consegna">💵 Contanti alla Consegna</option>
+                    <option value="Bonifico Bancario">🏦 Bonifico Bancario</option>
+                    <option value="PayPal">💳 PayPal</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-bakery-dark mb-1">Note (opzionale)</label>
+                <textarea id="customer-notes" placeholder="Eventuali richieste speciali..." class="w-full border-2 border-bakery-cream rounded-lg p-3 focus:border-bakery-brown focus:outline-none transition-colors" rows="3"></textarea>
+            </div>
+            <div class="pt-2">
+                <button type="submit" class="w-full bg-[#25D366] text-white py-4 rounded-full hover:bg-[#20BA5A] transition-all font-medium flex items-center justify-center gap-2 text-lg shadow-lg hover:shadow-xl">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    Invia Ordine su WhatsApp
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<a href="https://wa.me/393913556241" class="whatsapp-float" target="_blank">
+    <svg fill="currentColor" viewBox="0 0 24 24" style="width:32px;height:32px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+</a>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+window.cart = {
+    items: JSON.parse(localStorage.getItem('forno-minuccio-cart')) || [],
+    add(name, price, image, unit) {
+        const existing = this.items.find(item => item.name === name);
+        if (existing) existing.quantity += 1;
+        else this.items.push({ name, price, image, unit, quantity: 1 });
+        this.save();
+        this.render();
+        this.updateBadge();
+        window.toggleCart();
+    },
+    remove(name) {
+        this.items = this.items.filter(item => item.name !== name);
+        this.save();
+        this.render();
+        this.updateBadge();
+    },
+    updateQuantity(name, change) {
+        const item = this.items.find(item => item.name === name);
+        if (item) {
+            item.quantity += change;
+            if (item.quantity <= 0) this.remove(name);
+            else { this.save(); this.render(); this.updateBadge(); }
+        }
+    },
+    save() { localStorage.setItem('forno-minuccio-cart', JSON.stringify(this.items)); },
+    clear() { this.items = []; this.save(); this.render(); this.updateBadge(); },
+    getTotal() { return this.items.reduce((sum, item) => sum + (item.price * item.quantity), 0); },
+    updateBadge() {
+        const count = this.items.reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('cart-count').textContent = count;
+    },
+    render() {
+        const container = document.getElementById('cart-items');
+        if (this.items.length === 0) {
+            container.innerHTML = '<p class="text-center text-bakery-dark/60 py-8">Il carrello è vuoto</p>';
+        } else {
+            container.innerHTML = this.items.map(item => `
+                <div class="flex gap-4 p-4 bg-bakery-cream rounded-lg">
+                    <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover rounded">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-bakery-dark">${item.name}</h4>
+                        <p class="text-bakery-dark/70 text-sm">€${item.price.toFixed(2)}/${item.unit}</p>
+                        <div class="flex gap-2 mt-2">
+                            <button onclick="window.cart.updateQuantity('${item.name}', -1)" class="bg-bakery-brown text-white w-6 h-6 rounded flex items-center justify-center text-sm">−</button>
+                            <span class="font-bold text-bakery-dark w-6 text-center">${item.quantity}</span>
+                            <button onclick="window.cart.updateQuantity('${item.name}', 1)" class="bg-bakery-brown text-white w-6 h-6 rounded flex items-center justify-center text-sm">+</button>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-bakery-brown">€${(item.price * item.quantity).toFixed(2)}</p>
+                        <button onclick="window.cart.remove('${item.name}')" class="text-red-500 text-xs mt-2">Rimuovi</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        const total = this.getTotal();
+        document.getElementById('cart-total').textContent = '€' + total.toFixed(2);
+        document.getElementById('checkout-btn').disabled = this.items.length === 0;
+    }
+};
+
+window.addToCart = (name, price, image, unit) => window.cart.add(name, price, image, unit);
+window.toggleCart = () => {
+    document.getElementById('cart-sidebar').classList.toggle('open');
+    document.getElementById('cart-overlay').classList.toggle('open');
+};
+window.clearCart = () => {
+    if (confirm('Svuotare il carrello?')) window.cart.clear();
+};
+window.openCheckout = () => document.getElementById('checkout-modal').classList.add('open');
+window.closeCheckout = () => document.getElementById('checkout-modal').classList.remove('open');
+window.submitCheckout = (e) => {
+    e.preventDefault();
+    const name = document.getElementById('customer-name').value;
+    const phone = document.getElementById('customer-phone').value;
+    const email = document.getElementById('customer-email').value;
+    const address = document.getElementById('customer-address').value;
+    const method = document.getElementById('payment-method').value;
+    const notes = document.getElementById('customer-notes').value;
+    const items = window.cart.items.map(item => `  • ${item.quantity}x ${item.name}\n    €${item.price.toFixed(2)}/${item.unit} = €${(item.price * item.quantity).toFixed(2)}`).join('\n\n');
+    const total = window.cart.getTotal();
+    
+    let msg = `🛒 *NUOVO ORDINE - Forno Minuccio*\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━\n\n`;
+    msg += `👤 *Cliente:* ${name}\n`;
+    msg += `📱 *Telefono:* ${phone}\n`;
+    if (email) msg += `✉️ *Email:* ${email}\n`;
+    msg += `📍 *Indirizzo:* ${address}\n`;
+    msg += `💳 *Pagamento:* ${method}\n\n`;
+    msg += `*PRODOTTI ORDINATI:*\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `${items}\n\n`;
+    msg += `━━━━━━━━━━━━━━━━━━━\n`;
+    msg += `💰 *TOTALE: €${total.toFixed(2)}*\n`;
+    if (notes) msg += `\n📝 *Note:* ${notes}`;
+    
+    window.open(`https://wa.me/393913556241?text=${encodeURIComponent(msg)}`, '_blank');
+    window.cart.clear();
+    document.getElementById('checkout-form').reset();
+    window.closeCheckout();
+    window.toggleCart();
+};
+
+window.cart.updateBadge();
+window.cart.render();
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-menu-overlay');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+        overlay.addEventListener('click', () => {
+            menu.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        });
+    }
+    
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                const offset = 80;
+                const targetPosition = target.offsetTop - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
